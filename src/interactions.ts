@@ -960,20 +960,23 @@ Response (YES/NO):`;
     );
 
     // For synchronous response generation
-    const response = await callback(message.content, tweet.id);
+    // COMMENTED OUT: This creates a second response pathway that bypasses character templates
+    // and causes double responses. The event-based system above already handles responses properly.
+    // const response = await callback(message.content, tweet.id);
 
     // Check if response is an array of memories and extract the text
-    let responseText = "";
-    if (Array.isArray(response) && response.length > 0) {
-      const firstResponse = response[0];
-      if (firstResponse?.content?.text) {
-        responseText = firstResponse.content.text;
-      }
-    }
+    // let responseText = "";
+    // if (Array.isArray(response) && response.length > 0) {
+    //   const firstResponse = response[0];
+    //   if (firstResponse?.content?.text) {
+    //     responseText = firstResponse.content.text;
+    //   }
+    // }
 
+    // Return empty response since event-based system handles the actual reply
     return {
-      text: responseText,
-      actions: responseText ? ["REPLY"] : ["IGNORE"],
+      text: "",
+      actions: ["IGNORE"],
     };
   }
 }
