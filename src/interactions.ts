@@ -974,9 +974,10 @@ Response (YES/NO):`;
     // }
 
     // Return empty response since event-based system handles the actual reply
+    // Note: We return empty text but don't IGNORE since the event system handles responses
     return {
       text: "",
-      actions: ["IGNORE"],
+      actions: [],
     };
   }
 }
