@@ -1,5 +1,5 @@
 {
-  "name": "@elizaos/plugin-twitter",
+  "name": "@firemountain/plugin-twitter",
   "version": "1.2.21",
   "type": "module",
   "main": "dist/index.js",
