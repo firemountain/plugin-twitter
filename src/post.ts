@@ -258,19 +258,23 @@ Generate a single tweet that sounds like YOU would actually write it:`;
       }
 
       // Validate tweet length
-      if (tweetText.length > 280) {
+      const maxTweetLength = parseInt(
+        (getSetting(this.runtime, "TWITTER_MAX_TWEET_LENGTH") as string) ||
+        "280"
+      );
+      if (tweetText.length > maxTweetLength) {
         logger.warn(`Generated tweet too long (${tweetText.length} chars), truncating...`);
-        // Truncate to the last complete sentence within 280 chars
+        // Truncate to the last complete sentence within max chars
         const sentences = tweetText.match(/[^.!?]+[.!?]+/g) || [tweetText];
         let truncated = "";
         for (const sentence of sentences) {
-          if ((truncated + sentence).length <= 280) {
+          if ((truncated + sentence).length <= maxTweetLength) {
             truncated += sentence;
           } else {
             break;
           }
         }
-        const finalTweet = truncated.trim() || tweetText.substring(0, 277) + "...";
+        const finalTweet = truncated.trim() || tweetText.substring(0, maxTweetLength - 3) + "...";
         logger.info(`Truncated tweet: ${finalTweet}`);
 
         // Post the truncated tweet

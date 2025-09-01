@@ -10,6 +10,7 @@ import {
   ModelType,
 } from "@elizaos/core";
 import type { TwitterService } from "../services/twitter.service";
+import { getSetting } from "../utils/settings";
 
 export const postTweetAction: Action = {
   name: "POST_TWEET",
@@ -74,19 +75,23 @@ export const postTweetAction: Action = {
       }
 
       // Truncate if too long
-      if (text.length > 280) {
-        logger.info(`Truncating tweet from ${text.length} to 280 characters`);
+      const maxTweetLength = parseInt(
+        (getSetting(runtime, "TWITTER_MAX_TWEET_LENGTH") as string) ||
+        "280"
+      );
+      if (text.length > maxTweetLength) {
+        logger.info(`Truncating tweet from ${text.length} to ${maxTweetLength} characters`);
         // Try to truncate at sentence boundary
         const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
         let truncated = "";
         for (const sentence of sentences) {
-          if ((truncated + sentence).length <= 280) {
+          if ((truncated + sentence).length <= maxTweetLength) {
             truncated += sentence;
           } else {
             break;
           }
         }
-        text = truncated.trim() || text.substring(0, 277) + "...";
+        text = truncated.trim() || text.substring(0, maxTweetLength - 3) + "...";
         logger.info(`Truncated tweet: ${text}`);
       }
 
