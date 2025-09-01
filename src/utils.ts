@@ -13,7 +13,7 @@ import type { ClientBase } from "./base";
 import type { Tweet } from "./client";
 
 import type { ActionResponse, MediaData } from "./types";
-import { TWEET_MAX_LENGTH } from "./constants";
+import { getSetting } from "./utils/settings";
 
 export const wait = (minTime = 1000, maxTime = 3000) => {
   const waitTime =
@@ -96,9 +96,13 @@ async function handleNoteTweet(
   // Check if the result was successful
   if (!result || !result.ok) {
     // Tweet failed. Falling back to truncated Tweet.
+    const maxTweetLength = parseInt(
+      (getSetting(client.runtime, "TWITTER_MAX_TWEET_LENGTH") as string) ||
+      "280"
+    );
     const truncateContent = truncateToCompleteSentence(
       content,
-      TWEET_MAX_LENGTH,
+      maxTweetLength,
     );
     return await sendStandardTweet(client, truncateContent, tweetId);
   }
@@ -132,9 +136,15 @@ export async function sendTweet(
   mediaData: MediaData[] = [],
   tweetToReplyTo?: string,
 ): Promise<any> {
-  const isNoteTweet = text.length > TWEET_MAX_LENGTH;
+  // Get the dynamic tweet length setting
+  const maxTweetLength = parseInt(
+    (getSetting(client.runtime, "TWITTER_MAX_TWEET_LENGTH") as string) ||
+    "280"
+  );
+  
+  const isNoteTweet = text.length > maxTweetLength;
   const postText = isNoteTweet
-    ? truncateToCompleteSentence(text, TWEET_MAX_LENGTH)
+    ? truncateToCompleteSentence(text, maxTweetLength)
     : text;
 
   let result;
@@ -199,7 +209,11 @@ export async function sendChunkedTweet(
   inReplyTo: string,
 ): Promise<Memory[]> {
   const messages: Memory[] = [];
-  const chunks = splitTweetContent(content.text, TWEET_MAX_LENGTH);
+  const maxTweetLength = parseInt(
+    (getSetting(client.runtime, "TWITTER_MAX_TWEET_LENGTH") as string) ||
+    "280"
+  );
+  const chunks = splitTweetContent(content.text, maxTweetLength);
 
   let previousTweetId = inReplyTo;
 
